@@ -28,13 +28,18 @@ let templateHTML = fs.readFileSync(
 app.post('/send-email', async (req, res) => {
 	const { name, email, subject, message } = req.body;
 
-	templateHTML = templateHTML.replace('{{name}}', name);
-	templateHTML = templateHTML.replace('{{email}}', email);
-	templateHTML = templateHTML.replace('{{message}}', message);
+	templateHTML = templateHTML.replace(/{{name}}/g, name);
+	templateHTML = templateHTML.replace(/{{email}}/g, email);
+	templateHTML = templateHTML.replace(/{{subject}}/g, subject);
+	templateHTML = templateHTML.replace(
+		/{{encodedSubject}}/g,
+		subject.replaceAll(' ', '%20')
+	);
+	templateHTML = templateHTML.replace(/{{message}}/g, message);
 
 	try {
 		const { data, error } = await resend.emails.send({
-			from: `Message from Portfolio <${EMAIL_SENDER}>`,
+			from: `Pesan Baru dari Portfolio <${EMAIL_SENDER}>`,
 			to: [EMAIL_RECEIVER],
 			subject: subject,
 			html: templateHTML,
