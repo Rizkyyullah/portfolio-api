@@ -26,6 +26,7 @@ let templateHTML = fs.readFileSync(
 );
 
 app.post('/send-email', async (req, res) => {
+	console.log('Server received request body:', req.body);
 	const { name, email, subject, message } = req.body;
 
 	templateHTML = templateHTML.replace(/{{name}}/g, name);
