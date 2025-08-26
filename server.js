@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import { createTransport } from 'nodemailer';
 import 'dotenv/config';
 import fs from 'fs';
