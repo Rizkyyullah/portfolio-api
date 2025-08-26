@@ -20,14 +20,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
-let templateHTML = fs.readFileSync(
-	path.join(__dirname, 'template.html'),
-	'utf-8'
-);
-
 app.post('/send-email', async (req, res) => {
 	console.log('Server received request body:', req.body);
 	const { name, email, subject, message } = req.body;
+
+	let templateHTML = fs.readFileSync(
+		path.join(__dirname, 'template.html'),
+		'utf-8'
+	);
 
 	templateHTML = templateHTML.replace(/{{name}}/g, name);
 	templateHTML = templateHTML.replace(/{{email}}/g, email);
