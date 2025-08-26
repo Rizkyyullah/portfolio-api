@@ -6,7 +6,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3_000;
 const EMAIL_SENDER = process.env.EMAIL_SENDER;
 const EMAIL_RECEIVER = process.env.EMAIL_RECEIVER;
 const PASSWORD = process.env.PASSWORD;
@@ -68,6 +68,17 @@ app.post('/send-email', (req, res) => {
 	})();
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
 	console.log(`App running on port ${PORT}.`);
 });
+
+const gracefulShutdown = () => {
+	console.log('Received shutdown signal, shutting down gracefully ...');
+	server.close(() => {
+		console.log('Closed out remaining connections.');
+		process.exit(0);
+	});
+};
+
+process.on('SIGTERM', gracefulShutdown);
+process.on('SIGINT', gracefulShutdown);
