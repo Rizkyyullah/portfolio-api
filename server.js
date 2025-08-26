@@ -20,7 +20,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors({
     origin: [
         'http://127.0.0.1:5500',
-        'http://127.0.0.1:3000',
+	'http://localhost:5500',
+	'http://127.0.0.1:3000',
+        'http://localhost:3000',
         'https://rizkyyullah.online'
     ],
     credentials: true
