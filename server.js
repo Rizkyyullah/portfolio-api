@@ -32,6 +32,9 @@ app.post('/send-email', (req, res) => {
 	templateHTML = templateHTML.replace('{{message}}', message);
 
 	const transporter = createTransport({
+		host: 'smtp.gmail.com',
+		port: 587,
+		secure: false,
 		service: 'gmail',
 		auth: {
 			user: EMAIL_SENDER,
