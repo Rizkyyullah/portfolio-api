@@ -16,6 +16,14 @@ const __dirname = path.dirname(__filename);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors({
+    origin: [
+        'http://127.0.0.1:5500',
+        'http://127.0.0.1:3000',
+        'https://rizkyyullah.online'
+    ],
+    credentials: true
+}));
 
 app.post('/send-email', (req, res) => {
 	const { name, email, subject, message } = req.body;
