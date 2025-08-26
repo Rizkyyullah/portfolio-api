@@ -1,17 +1,18 @@
 import express from 'express';
 import cors from 'cors';
-import { createTransport } from 'nodemailer';
 import 'dotenv/config';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { Resend } from 'resend';
 
 const PORT = process.env.PORT || 3_000;
-const EMAIL_SENDER = process.env.EMAIL_SENDER;
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const EMAIL_RECEIVER = process.env.EMAIL_RECEIVER;
-const PASSWORD = process.env.PASSWORD;
+const EMAIL_SENDER = process.env.EMAIL_SENDER;
 
 const app = express();
+const resend = new Resend(RESEND_API_KEY);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -19,53 +20,51 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
-app.post('/send-email', (req, res) => {
-	const { name, email, subject, message } = req.body;
+let templateHTML = fs.readFileSync(
+	path.join(__dirname, 'template.html'),
+	'utf-8'
+);
 
-	let templateHTML = fs.readFileSync(
-		path.join(__dirname, 'template.html'),
-		'utf-8'
-	);
+app.post('/send-email', async (req, res) => {
+	const { name, email, subject, message } = req.body;
 
 	templateHTML = templateHTML.replace('{{name}}', name);
 	templateHTML = templateHTML.replace('{{email}}', email);
 	templateHTML = templateHTML.replace('{{message}}', message);
 
-	const transporter = createTransport({
-		host: 'smtp.gmail.com',
-		port: 465,
-		secure: true,
-		service: 'gmail',
-		auth: {
-			user: EMAIL_SENDER,
-			pass: PASSWORD,
-		},
-	});
+	try {
+		const { data, error } = await resend.emails.send({
+			from: `Message from Portfolio <${EMAIL_SENDER}>`,
+			to: [EMAIL_RECEIVER],
+			subject: subject,
+			html: templateHTML,
+			replyTo: email,
+		});
 
-	(async () => {
-		try {
-			const info = await transporter.sendMail({
-				from: `${name} ${EMAIL_SENDER}`,
-				to: EMAIL_RECEIVER,
-				subject: subject,
-				html: templateHTML,
-			});
-
-			console.log(`Response : ${info.response}`);
-			res.status(201).json({
-				status: 'Success',
-				statusCode: 201,
-				message: 'Email has been sent successfully',
-			});
-		} catch (e) {
-			console.log("Something's wrong ", e);
-			res.status(500).json({
+		if (error) {
+			console.error('Resend API error:', error);
+			return res.status(400).json({
 				status: 'Failed',
-				statusCode: 500,
+				statusCode: 400,
 				message: 'Email failed to send',
+				error: error,
 			});
 		}
-	})();
+
+		console.log('Email sent successfully:', data);
+		res.status(200).json({
+			status: 'Success',
+			statusCode: 200,
+			message: 'Email has been sent successfully',
+		});
+	} catch (e) {
+		console.error('Internal server error:', e);
+		res.status(500).json({
+			status: 'Failed',
+			statusCode: 500,
+			message: 'An unexpected error occurred',
+		});
+	}
 });
 
 const server = app.listen(PORT, '0.0.0.0', () => {
