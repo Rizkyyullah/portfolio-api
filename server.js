@@ -33,8 +33,8 @@ app.post('/send-email', (req, res) => {
 
 	const transporter = createTransport({
 		host: 'smtp.gmail.com',
-		port: 587,
-		secure: false,
+		port: 465,
+		secure: true,
 		service: 'gmail',
 		auth: {
 			user: EMAIL_SENDER,
