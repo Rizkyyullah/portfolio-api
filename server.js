@@ -64,13 +64,12 @@ app.post('/send-email', (req, res) => {
 				message: 'Email has been sent successfully',
 			});
 		} catch (e) {
+			console.error("Something's wrong ", e);
 			res.status(res.statusCode).json({
 				status: 'Failed',
 				statusCode: res.statusCode,
 				message: 'Email failed to send',
 			});
-
-			console.error("Something's wrong ", e);
 		}
 	})();
 });
