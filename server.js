@@ -17,16 +17,7 @@ const __dirname = path.dirname(__filename);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors({
-    origin: [
-        'http://127.0.0.1:5500',
-	'http://localhost:5500',
-	'http://127.0.0.1:3000',
-        'http://localhost:3000',
-        'https://rizkyyullah.online'
-    ],
-    credentials: true
-}));
+app.use(cors());
 
 app.post('/send-email', (req, res) => {
 	const { name, email, subject, message } = req.body;
@@ -64,10 +55,10 @@ app.post('/send-email', (req, res) => {
 				message: 'Email has been sent successfully',
 			});
 		} catch (e) {
-			console.error("Something's wrong ", e);
-			res.status(res.statusCode).json({
+			console.log("Something's wrong ", e);
+			res.status(500).json({
 				status: 'Failed',
-				statusCode: res.statusCode,
+				statusCode: 500,
 				message: 'Email failed to send',
 			});
 		}
